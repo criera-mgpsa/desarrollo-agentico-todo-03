@@ -24,6 +24,9 @@ form {
   --color-focus: #245ab4;
   --color-danger: #a52b25;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --color-primary-soft: #f7e9e4;
+  --color-surface-hover: #f2f2ee;
+  --radius: 6px;
 }
 
 body {
@@ -73,8 +76,8 @@ body {
   gap: 0.65rem;
   min-height: 44px;
   padding: 0.55rem 0.7rem;
-  border-radius: 6px;
-  background: #f7e9e4;
+  border-radius: var(--radius);
+  background: var(--color-primary-soft);
   color: #a03123;
   font-size: 0.9rem;
   font-weight: 600;
@@ -109,10 +112,13 @@ h1 {
   letter-spacing: -0.025em;
 }
 
-.list-count {
-  margin-top: 0.4rem;
+.text-meta {
   color: var(--color-muted);
   font-size: 0.8rem;
+}
+
+.list-count {
+  margin-top: 0.4rem;
 }
 
 .task-list {
@@ -129,17 +135,20 @@ h1 {
   border-bottom: 1px solid var(--color-border);
 }
 
-.task-drag-handle {
+.icon-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
   min-height: 44px;
   padding: 0;
-  color: #a5a59f;
   background: transparent;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius);
+}
+
+.task-drag-handle {
+  width: 28px;
+  color: #a5a59f;
   cursor: grab;
   touch-action: none;
 }
@@ -151,7 +160,7 @@ h1 {
 
 .task-drag-handle:hover {
   color: var(--color-muted);
-  background: #f2f2ee;
+  background: var(--color-surface-hover);
 }
 
 .task-dragging {
@@ -179,18 +188,10 @@ h1 {
 .task-toggle-button,
 .icon-action {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
   width: 44px;
-  min-height: 44px;
-  padding: 0;
   font: inherit;
   color: var(--color-muted);
-  background: transparent;
-  border: 0;
-  border-radius: 6px;
   cursor: pointer;
   text-decoration: none;
 }
@@ -213,7 +214,7 @@ h1 {
 }
 
 .task-toggle-button:hover .completion-icon {
-  background: #f7e9e4;
+  background: var(--color-primary-soft);
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
@@ -254,7 +255,7 @@ h1 {
 
 .icon-action:hover {
   color: var(--color-text);
-  background: #f2f2ee;
+  background: var(--color-surface-hover);
 }
 
 .icon-danger:hover {
@@ -293,7 +294,7 @@ input[type="text"] {
   color: var(--color-text);
   background: #ffffff;
   border: 1px solid #92928a;
-  border-radius: 6px;
+  border-radius: var(--radius);
 }
 
 .new-task-row input {
@@ -317,7 +318,7 @@ input[aria-invalid="true"] {
   min-height: 44px;
   padding: 0.6rem 0.9rem;
   border: 1px solid #dadad4;
-  border-radius: 6px;
+  border-radius: var(--radius);
   color: #41413d;
   background: #f6f6f2;
   font-family: inherit;
@@ -353,14 +354,12 @@ input:focus-visible {
 
 .field-hint {
   margin-top: 0.65rem;
-  color: var(--color-muted);
-  font-size: 0.8rem;
 }
 
 .field-error {
   margin-top: 0.75rem;
   padding: 0.7rem 0.85rem;
-  border-radius: 6px;
+  border-radius: var(--radius);
   color: #912a20;
   background: #fff0eb;
   font-size: 0.85rem;
@@ -376,7 +375,7 @@ input:focus-visible {
   margin-bottom: 1.25rem;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   font-size: 0.85rem;
 }
 
