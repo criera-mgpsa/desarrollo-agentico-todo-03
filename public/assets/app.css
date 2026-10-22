@@ -121,12 +121,51 @@ h1 {
 
 .task {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-columns: 28px 44px minmax(0, 1fr) auto;
   align-items: start;
   column-gap: 0.3rem;
   min-height: 61px;
   padding: 0.5rem 0;
   border-bottom: 1px solid var(--color-border);
+}
+
+.task-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-height: 44px;
+  padding: 0;
+  color: #a5a59f;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.task-drag-handle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.task-drag-handle:hover {
+  color: var(--color-muted);
+  background: #f2f2ee;
+}
+
+.task-dragging {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(40, 40, 38, 0.12);
+  cursor: grabbing;
+  user-select: none;
+  transition: box-shadow 120ms ease;
+}
+
+.task-dragging .task-drag-handle {
+  cursor: grabbing;
 }
 
 .task-title {
@@ -434,7 +473,7 @@ input:focus-visible {
   }
 
   .task {
-    grid-template-columns: 36px minmax(0, 1fr) auto;
+    grid-template-columns: 24px 36px minmax(0, 1fr) auto;
   }
 
   .task-toggle-button,
@@ -452,6 +491,10 @@ input:focus-visible {
 
   .add-mark {
     width: 36px;
+  }
+
+  .task-drag-handle {
+    width: 24px;
   }
 }
 
@@ -478,5 +521,9 @@ input:focus-visible {
   *::before,
   *::after {
     transition: none !important;
+  }
+
+  .task-dragging {
+    transition: none;
   }
 }

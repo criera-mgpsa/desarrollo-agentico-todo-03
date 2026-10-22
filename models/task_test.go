@@ -17,6 +17,20 @@ func (ms *ModelSuite) Test_Task_Create_Valid() {
 	ms.Equal(1, count)
 }
 
+func (ms *ModelSuite) Test_Task_Create_AssignsNextPosition() {
+	for i, title := range []string{"Primera", "Segunda", "Tercera"} {
+		task := &Task{Title: title}
+		verrs, err := ms.DB.ValidateAndCreate(task)
+		ms.NoError(err)
+		ms.False(verrs.HasAny())
+		ms.Equal(i+1, task.Position)
+
+		reloaded := &Task{}
+		ms.NoError(ms.DB.Find(reloaded, task.ID))
+		ms.Equal(i+1, reloaded.Position)
+	}
+}
+
 func (ms *ModelSuite) Test_Task_Title_Required() {
 	task := &Task{Title: ""}
 

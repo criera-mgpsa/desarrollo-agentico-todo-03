@@ -18,12 +18,27 @@ type Task struct {
 	ID        uuid.UUID `json:"id" db:"id" form:"-"`
 	Title     string    `json:"title" db:"title" form:"title"`
 	Completed bool      `json:"completed" db:"completed" form:"-"`
+	Position  int       `json:"position" db:"position" form:"-"`
 	CreatedAt time.Time `json:"created_at" db:"created_at" form:"-"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at" form:"-"`
 }
 
 // Tasks es una colección de Task.
 type Tasks []Task
+
+// BeforeCreate coloca la tarea nueva al final de la lista si no trae posición.
+func (t *Task) BeforeCreate(tx *pop.Connection) error {
+	if t.Position != 0 {
+		return nil
+	}
+
+	var next int
+	if err := tx.Store.Get(&next, "SELECT COALESCE(MAX(position), 0) + 1 FROM tasks"); err != nil {
+		return err
+	}
+	t.Position = next
+	return nil
+}
 
 // Validate se ejecuta en cada llamada a los métodos "pop.Validate*".
 func (t *Task) Validate(tx *pop.Connection) (*validate.Errors, error) {

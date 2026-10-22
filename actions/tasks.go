@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 )
 
 // TasksIndex muestra la lista de tareas y el formulario de creación.
@@ -16,7 +18,7 @@ func TasksIndex(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 
 	tasks := models.Tasks{}
-	if err := tx.Order("created_at asc, id asc").All(&tasks); err != nil {
+	if err := tx.Order("position asc, created_at asc, id asc").All(&tasks); err != nil {
 		return err
 	}
 
@@ -43,7 +45,7 @@ func TasksCreate(c buffalo.Context) error {
 
 	if verrs.HasAny() {
 		tasks := models.Tasks{}
-		if err := tx.Order("created_at asc, id asc").All(&tasks); err != nil {
+		if err := tx.Order("position asc, created_at asc, id asc").All(&tasks); err != nil {
 			return err
 		}
 
@@ -114,6 +116,57 @@ func TasksToggle(c buffalo.Context) error {
 	task.Completed = !task.Completed
 	if err := tx.Update(task); err != nil {
 		return err
+	}
+
+	return c.Redirect(http.StatusSeeOther, "/")
+}
+
+// TasksReorder guarda el orden de la lista a partir de todos los ids en su nuevo orden.
+func TasksReorder(c buffalo.Context) error {
+	tx := c.Value("tx").(*pop.Connection)
+
+	if err := c.Request().ParseForm(); err != nil {
+		return c.Error(http.StatusUnprocessableEntity, err)
+	}
+	errInvalidOrder := errors.New("El orden recibido no coincide con las tareas actuales.")
+
+	received := c.Request().Form["task_ids"]
+	ids := make([]uuid.UUID, 0, len(received))
+	seen := make(map[uuid.UUID]bool, len(received))
+	for _, raw := range received {
+		id, err := uuid.FromString(raw)
+		if err != nil || seen[id] {
+			return c.Error(http.StatusUnprocessableEntity, errInvalidOrder)
+		}
+		seen[id] = true
+		ids = append(ids, id)
+	}
+
+	tasks := models.Tasks{}
+	if err := tx.Select("id").All(&tasks); err != nil {
+		return err
+	}
+	if len(tasks) != len(ids) {
+		return c.Error(http.StatusUnprocessableEntity, errInvalidOrder)
+	}
+	for _, t := range tasks {
+		if !seen[t.ID] {
+			return c.Error(http.StatusUnprocessableEntity, errInvalidOrder)
+		}
+	}
+
+	if len(ids) > 0 {
+		values := make([]string, len(ids))
+		args := make([]interface{}, 0, len(ids)*2)
+		for i, id := range ids {
+			values[i] = "(?::uuid, ?::integer)"
+			args = append(args, id, i+1)
+		}
+		query := "UPDATE tasks SET position = v.position FROM (VALUES " + strings.Join(values, ", ") +
+			") AS v(id, position) WHERE tasks.id = v.id"
+		if err := tx.RawQuery(query, args...).Exec(); err != nil {
+			return err
+		}
 	}
 
 	return c.Redirect(http.StatusSeeOther, "/")

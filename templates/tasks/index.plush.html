@@ -12,7 +12,11 @@
   <% } else { %>
     <ul class="task-list">
       <%= for (t) in tasks { %>
-        <li class="task<%= if (t.Completed) { %> task-completed<% } %>">
+        <li class="task<%= if (t.Completed) { %> task-completed<% } %>" data-task-id="<%= t.ID %>">
+          <button type="button" class="task-drag-handle" data-task-drag
+            aria-label="Mover tarea: <%= t.Title %>" aria-describedby="reorder-help" title="Arrastrar para ordenar">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+          </button>
           <form action="/tasks/<%= t.ID %>/toggle" method="POST" class="task-toggle" data-task-toggle>
             <input type="hidden" name="authenticity_token" value="<%= authenticity_token %>">
             <input type="hidden" name="_method" value="PUT">
@@ -52,6 +56,12 @@
         </li>
       <% } %>
     </ul>
+    <p id="reorder-help" class="sr-only">Arrastra el asa o usa las flechas arriba y abajo para cambiar el orden.</p>
+    <p class="sr-only" aria-live="polite" data-reorder-status></p>
+    <form action="/tasks/reorder" method="POST" data-task-reorder hidden>
+      <input type="hidden" name="authenticity_token" value="<%= authenticity_token %>">
+      <input type="hidden" name="_method" value="PUT">
+    </form>
   <% } %>
 </section>
 
