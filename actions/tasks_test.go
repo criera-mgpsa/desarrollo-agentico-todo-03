@@ -78,6 +78,14 @@ func (as *ActionSuite) Test_TasksToggle_CompletesAndReopens() {
 	as.False(task.Completed)
 }
 
+func (as *ActionSuite) Test_TasksToggle_PostWithMethodOverride() {
+	task := as.taskForEditing(false)
+	res := as.HTML("/tasks/%s/toggle", task.ID).Post(url.Values{"_method": {"PUT"}})
+	as.Equal(303, res.Code)
+	as.NoError(as.DB.Reload(task))
+	as.True(task.Completed)
+}
+
 func (as *ActionSuite) Test_TasksToggle_NotFound() {
 	id := uuid.Must(uuid.NewV4())
 	res := as.HTML("/tasks/%s/toggle", id).Put(url.Values{})

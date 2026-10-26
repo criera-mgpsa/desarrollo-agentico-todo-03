@@ -31,5 +31,15 @@ document.addEventListener("submit", function (event) {
     status.remove();
   }
 
-  fetch(form.action);
+  fetch(form.action, {
+    method: "POST",
+    body: new FormData(form),
+    credentials: "same-origin",
+  }).then(function (response) {
+    if (!response.ok) {
+      window.location.reload();
+    }
+  }).catch(function () {
+    window.location.reload();
+  });
 });
