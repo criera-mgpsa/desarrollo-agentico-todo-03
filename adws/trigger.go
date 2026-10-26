@@ -7,8 +7,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
+	"time"
 
 	"go.yaml.in/yaml/v3"
 )
@@ -94,9 +94,7 @@ func run(args []string) error {
 		if *once {
 			return nil
 		}
-		if err := exec.Command("sleep", strconv.Itoa(cfg.IntervalSeconds)).Run(); err != nil {
-			return err
-		}
+		time.Sleep(time.Duration(cfg.IntervalSeconds) * time.Second)
 	}
 }
 
