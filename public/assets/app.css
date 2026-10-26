@@ -129,12 +129,23 @@ h1 {
   border-bottom: 1px solid var(--color-border);
 }
 
-.task-title {
+.task-body {
   align-self: center;
   min-width: 0;
   padding: 0.65rem 0;
+}
+
+.task-title {
+  display: block;
   overflow-wrap: anywhere;
   line-height: 1.55;
+}
+
+.task-due {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
 }
 
 .task-toggle-button,
@@ -245,7 +256,8 @@ h1 {
   line-height: 1;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="date"] {
   width: 100%;
   min-width: 0;
   min-height: 44px;
@@ -259,6 +271,11 @@ input[type="text"] {
 
 .new-task-row input {
   flex: 1;
+}
+
+.new-task-row input[type="date"] {
+  flex: 0 0 auto;
+  width: auto;
 }
 
 input::placeholder {
@@ -369,6 +386,14 @@ input:focus-visible {
   font-weight: 600;
 }
 
+.edit-task label[for="task-due-date"] {
+  margin-top: 1.25rem;
+}
+
+.edit-task input[type="date"] {
+  width: auto;
+}
+
 .edit-task-actions {
   display: flex;
   flex-wrap: wrap;
@@ -466,6 +491,11 @@ input:focus-visible {
 
   .new-task-row input {
     flex-basis: calc(100% - 44px);
+  }
+
+  .new-task-row input[type="date"] {
+    flex-basis: calc(100% - 44px);
+    margin-left: 44px;
   }
 
   .new-task-row .button {

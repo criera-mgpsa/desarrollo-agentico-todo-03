@@ -11,6 +11,22 @@ import (
 	"github.com/gobuffalo/validate/v3"
 )
 
+// saveTask asigna la fecha límite recibida y guarda la tarea con save; si la
+// fecha no es válida, devuelve los errores de validación sin guardar nada.
+func saveTask(tx *pop.Connection, task *models.Task, dueDate string, save func(interface{}, ...string) (*validate.Errors, error)) (*validate.Errors, error) {
+	parsed, parseErr := models.ParseDueDate(dueDate)
+	if parseErr != nil {
+		verrs, err := task.Validate(tx)
+		if err != nil {
+			return nil, err
+		}
+		verrs.Add("due_date", models.DueDateInvalidMessage)
+		return verrs, nil
+	}
+	task.DueDate = parsed
+	return save(task)
+}
+
 // TasksIndex muestra la lista de tareas y el formulario de creación.
 func TasksIndex(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
@@ -36,7 +52,7 @@ func TasksCreate(c buffalo.Context) error {
 	}
 	task.Title = strings.TrimSpace(task.Title)
 
-	verrs, err := tx.ValidateAndCreate(task)
+	verrs, err := saveTask(tx, task, c.Param("due_date"), tx.ValidateAndCreate)
 	if err != nil {
 		return err
 	}
@@ -71,7 +87,7 @@ func TasksEdit(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.HTML("tasks/edit.plush.html"))
 }
 
-// TasksUpdate actualiza solo el título, conservando los demás datos de la tarea.
+// TasksUpdate actualiza el título y la fecha límite, conservando los demás datos de la tarea.
 func TasksUpdate(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 
@@ -81,14 +97,15 @@ func TasksUpdate(c buffalo.Context) error {
 	}
 
 	input := struct {
-		Title string `form:"title" json:"title"`
+		Title   string `form:"title" json:"title"`
+		DueDate string `form:"due_date" json:"due_date"`
 	}{}
 	if err := c.Bind(&input); err != nil {
 		return err
 	}
 	task.Title = strings.TrimSpace(input.Title)
 
-	verrs, err := tx.ValidateAndUpdate(task)
+	verrs, err := saveTask(tx, task, input.DueDate, tx.ValidateAndUpdate)
 	if err != nil {
 		return err
 	}
